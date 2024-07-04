@@ -58,8 +58,8 @@ class AuthRequest extends FormRequest
         $response = response()->json([
             'success' => false,
             'data' => $errors,
-            'user_messagge' => 'Existen errores en los datos ingresados.',
-            'dev_messagge' => 'Error en Request',
+            'user_message' => 'Existen errores en los datos ingresados.',
+            'dev_message' => 'Error en Request',
         ], 422);
 
         throw new HttpResponseException($response);

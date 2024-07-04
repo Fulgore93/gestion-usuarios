@@ -1,41 +1,65 @@
 services:
+  app:
+    build: 
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: gestion_usuarios
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+      - ./src/.env:/var/www/.env
+    environment:
+      - APP_ENV=local
+    networks:
+      - app-network
+    ports:
+      - "9000:9000"
 
-  # Web Server Service
   nginx:
-    image: nginx:alpine
+    image: nginx:stable-alpine
     container_name: nginx
     ports:
       - "8080:80"
     volumes:
       - ./src:/var/www
       - ./nginx/conf.d/:/etc/nginx/conf.d/
+    command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - app
-      - db
+    networks:
+      - app-network        
 
-  #Database Service
-  db:
-    image : mysql
-    container_name : mysql
-    volumes:
-      - ./mysql/data:/var/lib/mysql
+  node:
+    platform: linux/arm64/v8 #this line is optional if you are using Mac Silicon chip (M1/M2/M3)
+    build: 
+      context: ./src
+      dockerfile: Dockerfile.node
+    container_name: vue
     ports:
-      - "3306:3306"
+    - "3000:3000"
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+      - /var/www/node_modules
+    networks:
+      - app-network
+
+  db:
+    platform: linux/x86_64 #this line is optional if you are using Mac Silicon chip (M1/M2/M3)
+    image: mysql
+    container_name: mysql
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: gestion_usuarios
       MYSQL_ROOT_PASSWORD: password
-
-  # Application Service
-  app:
-    container_name: gestion_usuarios
-    build: 
-      context: ./php
-      dockerfile: Dockerfile
     volumes:
-      - ./src:/var/www
+      - ./mysql/data:/var/lib/mysql
+    networks:
+      - app-network
     ports:
-      - "9000:9000"
-    working_dir: /var/www
+      - "3306:3306"
 
   #phpMyAdmin Service
   phpmyadmin:
@@ -45,3 +69,13 @@ services:
       - "3400:80"
     depends_on:
       - db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
