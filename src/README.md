@@ -52,6 +52,22 @@ Tomando como base que la instalación fue exitosa y con los servicios encendidos
 - - - password: password
 - todos los usuarios pueden hacer uso del crud luego de loguearse, pero sólo el usuario admin no podrá ser eliminado ya que es administrador
 
+
+# Observaciones
+Si se cambia algún nombre o puerto, se debe considerar ese cambio en diferentes archivos, por ejemplo:
+- Para lo relacionado con node, el puerto 3000 está configurado en:
+- - docker-compose.yml
+- - src/Dockerfile.node
+- - src/vite.config.js
+- Para lo relacionado con laravel, el puerto 9000 está configurado en:
+- - docker-compose.yml
+- - nginx/default.conf/default.conf
+- - php/Dockerfile
+- Para lo relacionado con mysql, el puerto 3306 está configurado en:
+- - docker-compose.yml
+- - src/.env
+
+
 # Referencias
 - https://laravel.com/docs/10.x/releases
 - https://vuejs.org/guide/introduction.html
